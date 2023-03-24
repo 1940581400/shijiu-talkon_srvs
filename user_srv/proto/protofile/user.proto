@@ -1,0 +1,96 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+option go_package = "./;proto";
+
+service User{
+  // 分页查询所有用户列表
+  rpc GetUserList(PageInfoReq) returns (UserInfoListResp);
+  // 通过id查询用户信息
+  rpc GetUserById(IdReq) returns (UserInfoResp);
+  // 通过用户名查询用户信息
+  rpc GetUserByUsername(UsernameReq) returns (UserInfoResp);
+  // 通过手机号查询用户信息
+  rpc GetUserByMobile(MobileReq) returns (UserInfoResp);
+  // 创建用户
+  rpc CreateUser(CreateUserReq) returns (UserInfoResp);
+  // 更新用户
+  rpc UpdateUser(UpdateUserReq) returns (google.protobuf.Empty);
+  // 密码校验
+  rpc CheckPassword(CheckPasswordReq) returns(CheckPasswordResp);
+}
+
+message CheckPasswordReq {
+  string Password = 1;
+  string EncodedPwdSep = 2;
+}
+message CheckPasswordResp {
+  bool ok = 1;
+}
+
+
+message PageInfoReq {
+  uint32 pageNo = 1;
+  uint32 pageSize = 2;
+}
+message UpdateUserReq {
+  // id
+  int32 id = 1;
+  // 昵称
+  string NickName = 2;
+  // 出生日期
+  uint64 Birthday = 3;
+  // 性别
+  int32  Gender = 4;
+}
+message CreateUserReq {
+  string NickName = 1;
+  string Mobile = 2;
+  string Email = 3;
+  string Password = 4;
+}
+message IdReq {
+  int32 Id = 1;
+}
+message UsernameReq {
+  string Username = 1;
+}
+
+message MobileReq {
+  string Mobile = 1;
+}
+
+message UserInfoResp {
+  // id
+  int32  Id = 1;
+  // 用户名
+  string Email = 2;
+  // 手机号
+  string Mobile = 3;
+  // 密码
+  string Password = 4;
+  // 昵称
+  string NickName = 5;
+  // 出生日期
+  uint64 Birthday = 6;
+  // 性别
+  int32  Gender = 7;
+  // 身份证号
+  string IdCard = 8;
+  // 用户类型 0普通用户，1管理员用户
+  int32  UserType = 9;
+  // 创建时间
+  uint64 CreateTime = 11;
+  // 更新时间
+  uint64 UpdateTime = 12;
+  // 创建人
+  int32  CreateUser = 13;
+  // 更新人
+  int32  UpdateUser = 14;
+  // 是否删除，0否，1是
+  int32  IsDeleted = 15;
+}
+
+message UserInfoListResp {
+  int64 total = 1;
+  repeated UserInfoResp data = 2;
+}
