@@ -1,30 +1,17 @@
 package main
 
-import (
-	"flag"
-	"fmt"
-	"net"
-
-	"google.golang.org/grpc"
-
-	"talkon_srvs/user_srv/handler"
-	"talkon_srvs/user_srv/proto"
-)
+import "talkon_srvs/user_srv/initialize"
 
 func main() {
-	IP := flag.String("ip", "127.0.0.1", "ip地址")
-	Port := flag.Int("port", 8088, "端口号")
-	flag.Parse()
-	fmt.Println("ip: ", *IP)
-	fmt.Println("port: ", *Port)
-	server := grpc.NewServer()
-	proto.RegisterUserServer(server, &handler.UserService{})
-	listen, err := net.Listen("tcp", fmt.Sprintf("%s:%d", *IP, *Port))
-	if err != nil {
-		panic("failed to listen " + err.Error())
-	}
-	err = server.Serve(listen)
-	if err != nil {
-		panic("failed to start grpc " + err.Error())
-	}
+
+	// 1.初始化配置，注意 此操作一定要在第一，不然后面初始化读不到配置
+	initialize.InitConfig()
+	// 2.初始化日志，注意 此操作一定要在第二，不然初始化文件当中的 日志 无法打印
+	initialize.InitLogger()
+
+	// 下面顺序可随意
+	// 3.初始化全局数据连接
+	initialize.InitDB()
+	// 4.初始化服务
+	initialize.InitServer()
 }

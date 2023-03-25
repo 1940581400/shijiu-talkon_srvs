@@ -11,11 +11,8 @@ import (
 	"talkon_srvs/user_srv/global/zero"
 	"talkon_srvs/user_srv/model"
 	"talkon_srvs/user_srv/proto"
+	"talkon_srvs/user_srv/utils"
 	"time"
-)
-
-var (
-	system int32 = 100000
 )
 
 type UserService struct {
@@ -47,7 +44,7 @@ func UserModelToResp(user model.User) *proto.UserInfoResp {
 // GetUserList 分页获取用户信息
 func (s *UserService) GetUserList(ctx context.Context, req *proto.PageInfoReq) (*proto.UserInfoListResp, error) {
 	var userInfos []model.User
-	result := global.DB.Scopes(global.Paginate(int32(req.PageNo), int32(req.PageSize))).Find(&userInfos)
+	result := global.DB.Scopes(utils.Paginate(int32(req.PageNo), int32(req.PageSize))).Find(&userInfos)
 	if result.Error != nil {
 		return nil, status.Error(codes.Internal, result.Error.Error())
 	}
