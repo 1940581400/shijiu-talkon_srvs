@@ -15,5 +15,5 @@ logger:
   level: "info"
   development: "true"
   Encoding: "console"
-  EncoderConfig: "dev"
+  EncoderConfig: "pro"
   OutputPaths: "stderr"
