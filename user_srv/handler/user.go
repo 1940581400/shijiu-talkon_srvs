@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -46,7 +47,8 @@ func (s *UserService) GetUserList(ctx context.Context, req *proto.PageInfoReq) (
 	var userInfos []model.User
 	result := global.DB.Scopes(utils.Paginate(int32(req.PageNo), int32(req.PageSize))).Find(&userInfos)
 	if result.Error != nil {
-		return nil, status.Error(codes.Internal, result.Error.Error())
+		zap.L().Error("[GetUserList] 查询出错", zap.String("msg", result.Error.Error()))
+		return nil, status.Error(codes.NotFound, "未查询到用户")
 	}
 	resp := &proto.UserInfoListResp{}
 	resp.Total = result.RowsAffected
@@ -64,11 +66,9 @@ func (s *UserService) GetUserById(ctx context.Context, req *proto.IdReq) (*proto
 	}
 	var userInfo model.User
 	result := global.DB.First(&userInfo, req.Id)
-	if result.Error != nil {
-		return nil, status.Error(codes.Internal, result.Error.Error())
-	}
 	if result.RowsAffected == 0 {
-		return nil, status.Error(codes.NotFound, "未查询到用户")
+		zap.L().Error("[GetUserById] 查询出错", zap.String("msg", result.Error.Error()))
+		return nil, status.Error(codes.NotFound, "用户不存在")
 	}
 	return UserModelToResp(userInfo), nil
 }
@@ -80,11 +80,23 @@ func (s *UserService) GetUserByMobile(ctx context.Context, req *proto.MobileReq)
 	}
 	var userInfo model.User
 	result := global.DB.Where(&model.User{Mobile: req.Mobile}).First(&userInfo)
-	if result.Error != nil {
-		return nil, status.Error(codes.Internal, result.Error.Error())
-	}
 	if result.RowsAffected == 0 {
-		return nil, status.Error(codes.NotFound, "未查询到用户")
+		zap.L().Error("[GetUserByMobile] 查询出错", zap.String("msg", result.Error.Error()))
+		return nil, status.Error(codes.NotFound, "用户不存在")
+	}
+	return UserModelToResp(userInfo), nil
+}
+
+// GetUserByEmail 通过邮箱查询用户信息
+func (s *UserService) GetUserByEmail(ctx context.Context, req *proto.EmailReq) (*proto.UserInfoResp, error) {
+	if req.Email == zero.String {
+		return nil, status.Error(codes.NotFound, "用户不存在")
+	}
+	var userInfo model.User
+	result := global.DB.Where(&model.User{Email: req.Email}).First(&userInfo)
+	if result.RowsAffected == 0 {
+		zap.L().Error("[GetUserByEmail] 查询出错", zap.String("msg", result.Error.Error()))
+		return nil, status.Error(codes.NotFound, "用户不存在")
 	}
 	return UserModelToResp(userInfo), nil
 }
@@ -92,26 +104,26 @@ func (s *UserService) GetUserByMobile(ctx context.Context, req *proto.MobileReq)
 // CreateUser 创建用户
 func (s *UserService) CreateUser(ctx context.Context, req *proto.CreateUserReq) (*proto.UserInfoResp, error) {
 	if req.GetMobile() == zero.String && req.GetEmail() == zero.String {
-		return nil, status.Error(codes.Internal, "手机号和邮箱不能同时为空")
+		return nil, status.Error(codes.InvalidArgument, "手机号和邮箱不能同时为空")
 	}
 	var existUser int64 = 0
 	if req.GetMobile() != zero.String {
 		global.DB.Where(&model.User{Mobile: req.Mobile}).Count(&existUser)
 		if existUser > 0 {
-			return nil, status.Error(codes.Internal, "手机号已被注册")
+			return nil, status.Error(codes.AlreadyExists, "手机号已被注册")
 		}
 	}
 	if req.GetEmail() != zero.String {
 		global.DB.Where(&model.User{Email: req.Email}).Count(&existUser)
 		if existUser > 0 {
-			return nil, status.Error(codes.Internal, "邮箱已被占用")
+			return nil, status.Error(codes.AlreadyExists, "邮箱已被占用")
 		}
 	}
 	if req.GetMobile() != zero.String {
 		global.DB.Where(&model.User{Mobile: req.Mobile}).Count(&existUser)
 	}
 	if req.GetPassword() == zero.String {
-		return nil, status.Error(codes.Internal, "密码不能为空")
+		return nil, status.Error(codes.InvalidArgument, "密码不能为空")
 	}
 	now := time.Now()
 	pwdSep, err := pwd.NewEncodedPwdSep(req.Password)
@@ -129,7 +141,8 @@ func (s *UserService) CreateUser(ctx context.Context, req *proto.CreateUserReq) 
 	newUser.NickName = req.NickName
 	result := global.DB.Create(&newUser)
 	if result.Error != nil {
-		return nil, status.Error(codes.Internal, result.Error.Error())
+		zap.L().Error("[CreateUser] 数据库操作出错", zap.String("msg", result.Error.Error()))
+		return nil, status.Error(codes.Internal, "创建用户失败")
 	}
 	return UserModelToResp(*newUser), nil
 }
@@ -139,7 +152,7 @@ func (s *UserService) UpdateUser(ctx context.Context, req *proto.UpdateUserReq) 
 	var user model.User
 	result := global.DB.First(&user, req.Id)
 	if result.RowsAffected == 0 {
-		return nil, status.Error(codes.NotFound, "用户不存在")
+		return nil, status.Error(codes.NotFound, "用户不存在,更新失败")
 	}
 	birthday := time.Unix(int64(req.Birthday), 0)
 	now := time.Now()
@@ -150,6 +163,7 @@ func (s *UserService) UpdateUser(ctx context.Context, req *proto.UpdateUserReq) 
 	user.UpdateTime = now
 	result = global.DB.Save(&user)
 	if result.Error != nil {
+		zap.L().Error("[UpdateUser] 数据库操作出错", zap.String("msg", result.Error.Error()))
 		return nil, status.Error(codes.Internal, result.Error.Error())
 	}
 	return &emptypb.Empty{}, nil
@@ -159,6 +173,7 @@ func (s *UserService) UpdateUser(ctx context.Context, req *proto.UpdateUserReq) 
 func (s *UserService) CheckPassword(ctx context.Context, req *proto.CheckPasswordReq) (*proto.CheckPasswordResp, error) {
 	ok, err := pwd.VerifyPwdSep(req.GetEncodedPwdSep(), req.GetPassword())
 	if err != nil {
+		zap.L().Error("[CheckPassword] 密码校验出错", zap.String("msg", err.Error()))
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 	return &proto.CheckPasswordResp{Ok: ok}, nil

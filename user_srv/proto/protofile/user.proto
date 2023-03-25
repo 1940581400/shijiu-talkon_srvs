@@ -7,8 +7,8 @@ service User{
   rpc GetUserList(PageInfoReq) returns (UserInfoListResp);
   // 通过id查询用户信息
   rpc GetUserById(IdReq) returns (UserInfoResp);
-  // 通过用户名查询用户信息
-  rpc GetUserByUsername(UsernameReq) returns (UserInfoResp);
+  // 通过邮箱查询用户信息
+  rpc GetUserByEmail(EmailReq) returns (UserInfoResp);
   // 通过手机号查询用户信息
   rpc GetUserByMobile(MobileReq) returns (UserInfoResp);
   // 创建用户
@@ -51,8 +51,8 @@ message CreateUserReq {
 message IdReq {
   int32 Id = 1;
 }
-message UsernameReq {
-  string Username = 1;
+message EmailReq {
+  string Email = 1;
 }
 
 message MobileReq {
