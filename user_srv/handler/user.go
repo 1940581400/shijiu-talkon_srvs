@@ -7,8 +7,6 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"talkon_srvs/user_srv/global"
-	"talkon_srvs/user_srv/global/pwd"
-	"talkon_srvs/user_srv/global/random"
 	"talkon_srvs/user_srv/global/zero"
 	"talkon_srvs/user_srv/model"
 	"talkon_srvs/user_srv/proto"
@@ -126,7 +124,7 @@ func (s *UserService) CreateUser(ctx context.Context, req *proto.CreateUserReq) 
 		return nil, status.Error(codes.InvalidArgument, "密码不能为空")
 	}
 	now := time.Now()
-	pwdSep, err := pwd.NewEncodedPwdSep(req.Password)
+	pwdSep, err := utils.NewEncodedPwdSep(req.Password)
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +134,7 @@ func (s *UserService) CreateUser(ctx context.Context, req *proto.CreateUserReq) 
 	newUser.Password = pwdSep
 	// 如果昵称为空，则随机生成一串字符
 	if req.NickName == zero.String {
-		req.NickName = random.GetStr(8)
+		req.NickName = utils.GetRandomStr(8)
 	}
 	newUser.NickName = req.NickName
 	result := global.DB.Create(&newUser)
@@ -171,7 +169,7 @@ func (s *UserService) UpdateUser(ctx context.Context, req *proto.UpdateUserReq) 
 
 // CheckPassword 校验密码是否正确
 func (s *UserService) CheckPassword(ctx context.Context, req *proto.CheckPasswordReq) (*proto.CheckPasswordResp, error) {
-	ok, err := pwd.VerifyPwdSep(req.GetEncodedPwdSep(), req.GetPassword())
+	ok, err := utils.VerifyPwdSep(req.GetEncodedPwdSep(), req.GetPassword())
 	if err != nil {
 		zap.L().Error("[CheckPassword] 密码校验出错", zap.String("msg", err.Error()))
 		return nil, status.Error(codes.Internal, err.Error())

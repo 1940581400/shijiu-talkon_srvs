@@ -1,4 +1,4 @@
-package random
+package utils
 
 import (
 	"math/rand"
@@ -10,10 +10,10 @@ var CHARS = []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l",
 	"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"}
 
 /*
-GetStr  生成随机数字和字母字符串
+GetRandomStr  生成随机数字和字母字符串
 lenNum 长度
 */
-func GetStr(lenNum int) string {
+func GetRandomStr(lenNum int) string {
 	str := strings.Builder{}
 	length := len(CHARS)
 	for i := 0; i < lenNum; i++ {
@@ -24,10 +24,10 @@ func GetStr(lenNum int) string {
 }
 
 /*
-GetNumString  生成随机数字字符串([0~9])
+GetNumRandomStr  生成随机数字字符串([0~9])
 lenNum 长度
 */
-func GetNumString(lenNum int) string {
+func GetNumRandomStr(lenNum int) string {
 	str := strings.Builder{}
 	length := 10
 	for i := 0; i < lenNum; i++ {

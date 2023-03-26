@@ -17,3 +17,11 @@ logger:
   Encoding: "console"
   EncoderConfig: "pro"
   OutputPaths: "stderr"
+
+jwt:
+  key: "talkOn_jwt_by_shijiu_token_2023"
+  expires: 168
+  issuer: "shijiu-talkon"
+  subject: "talkon-default"
+  audience: "shijiu-talkOn.com"
+  platform : "talkon-user-srv"

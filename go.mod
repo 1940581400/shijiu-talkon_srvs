@@ -4,6 +4,8 @@ go 1.20
 
 require (
 	github.com/anaskhan96/go-password-encoder v0.0.0-20201010210601-c765b799fd72
+	github.com/golang-jwt/jwt/v4 v4.5.0
+	github.com/google/uuid v1.3.0
 	github.com/spf13/viper v1.15.0
 	go.uber.org/zap v1.21.0
 	google.golang.org/grpc v1.54.0
