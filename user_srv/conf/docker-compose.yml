@@ -10,7 +10,9 @@ networks:
 
 services: # 一组服务
   mysql-dev: # 容器名
-    image: mysql:8.0.32 # 容器运行的镜像
+    build:
+      context: . # 指定Dockerfile所在的上下文路径
+      dockerfile: Dockerfile_mysql # Dockerfile文件名
     ports: # 端口映射（可写多个），同 docker run -p
       - "50010:3306"
     environment: # 运行时候指定环境变量 同 docker run -e
@@ -23,18 +25,20 @@ services: # 一组服务
     networks: # 指定网络 同 docker run --network
       - talk_on
 
-  redis-dev:
-    image: redis:7.0.8
-    ports:
-      - "50020:6379"
+#  redis-dev:
+#    image: redis:7.0.8
+#    ports:
+#      - "50020:6379"
 
 
   talk-user-srv:
     build: # 指定需要构建的Dockerfile文件
-      context: .. # 指定Dockerfile所在的上下文路径
-      dockerfile: userDockerfile # Dockerfile文件名
+      context: . # 指定Dockerfile所在的上下文路径
+      dockerfile: Dockerfile_usersrv # Dockerfile文件名
     ports:
       - "8088:8088"
+    networks:
+      - talk_on
 #    command: # 覆盖容器启动后默认执行的命令
 #      - "main.go"
     depends_on:
