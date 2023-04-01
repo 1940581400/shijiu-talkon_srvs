@@ -19,7 +19,7 @@ func InitConfig() {
 	configName := "user_srv/config.yaml"
 	if flag, _ := strconv.ParseBool(info); flag {
 		//configName = "user_srv/config_dev.yaml"
-		configName = "config_dev.yaml"
+		configName = "./conf/config_dev.yaml"
 	}
 	logger := log.Default()
 	logger.Printf("[配置文件] 读取中 %s", configName)
