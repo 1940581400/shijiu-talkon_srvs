@@ -7,7 +7,7 @@ ENV GOOS=linux
 ENV GOARCH=amd64
 
 
-COPY . /
+COPY . /user_srv
 WORKDIR /user_srv
 RUN go build -o usersrv .
 
