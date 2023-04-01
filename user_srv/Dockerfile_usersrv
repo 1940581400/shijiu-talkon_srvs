@@ -9,13 +9,16 @@ ENV GOARCH=amd64
 RUN go env
 COPY . /user_srv
 WORKDIR /user_srv
+COPY ./wait-for-it.sh ./wait-for-it.sh
 RUN go mod download
 RUN go build -o usersrv .
+#CMD ["./usersrv"]
+CMD ./usersrv
 
-FROM scratch AS deployer
-COPY --from=budilder /user_srv/usersrv /
-COPY --from=budilder /user_srv/conf /conf
-COPY ./wait-for-it.sh /wait-for-it.sh
-# 声明当前容器中服务的端口
-EXPOSE 8088
-CMD /usersrv
+#FROM scratch AS deployer
+#COPY --from=budilder /user_srv/usersrv /
+#COPY --from=budilder /user_srv/conf /conf
+##COPY ./wait-for-it.sh /wait-for-it.sh
+## 声明当前容器中服务的端口
+#EXPOSE 8088
+#CMD ["/usersrv"]

@@ -7,7 +7,7 @@ server:
 mysql:
   host: "talk-mysql"
   port: "3306"
-  username: "shijiu"
+  username: "root"
   password: "Qq1633841065"
   schema: "talkon_user_srv"
 
