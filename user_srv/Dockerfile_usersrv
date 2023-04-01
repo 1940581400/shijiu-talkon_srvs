@@ -14,7 +14,7 @@ RUN go build -o usersrv .
 
 FROM scratch AS deployer
 COPY --from=budilder /user_srv/usersrv /
-COPY --from=budilder /user_srv/conf ./conf
+COPY --from=budilder /user_srv/conf /conf
 # 声明当前容器中服务的端口
 EXPOSE 8088
-CMD ["usersrv"]
+CMD ["/usersrv"]
