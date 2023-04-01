@@ -34,11 +34,11 @@ func InitDB() {
 		},
 		Logger: newLogger,
 	})
+	global.DB = DB
 	defer func() {
 		if err != nil {
 			panic(err)
 		}
+		zap.S().Infof("[数据库配置] 初始化完成")
 	}()
-	global.DB = DB
-	zap.S().Infof("[数据库配置] 初始化完成")
 }

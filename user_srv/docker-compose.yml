@@ -1,15 +1,10 @@
-version: "3.5"
+version: "3.8"
 
-# 用到别名的方式映射数据卷需要现在这里声明，冒号后面什么都不需要写
-volumes:
-  mysql_dev:
-# 声明网桥
-networks:
-  talk_on:
 
 
 services: # 一组服务
   mysql-dev: # 容器名
+    container_name: usersrv-mysql
     build:
       context: . # 指定Dockerfile所在的上下文路径
       dockerfile: Dockerfile_mysql # Dockerfile文件名
@@ -22,8 +17,8 @@ services: # 一组服务
     volumes:  # 映射数据卷 同 docker -v
       # - "/media/docker/mysql_dev:/var/lib/mysql"  绝对路径指定，宿主机的文件路径须存在，不能自动创建
       - "mysql_dev:/var/lib/mysql"  # 别名的方式指定，须声明数据卷别名
-    networks: # 指定网络 同 docker run --network
-      - talk_on
+#    networks: # 指定网络 同 docker run --network
+#      - talk_on
 
 #  redis-dev:
 #    image: redis:7.0.8
@@ -31,14 +26,25 @@ services: # 一组服务
 #      - "50020:6379"
 
   talk-user-srv:
+    container_name: usersrv
     build: # 指定需要构建的Dockerfile文件
       context: . # 指定Dockerfile所在的上下文路径
       dockerfile: Dockerfile_usersrv # Dockerfile文件名
     ports:
       - "8088:8088"
-    networks:
-      - talk_on
+#    networks:
+#      - talk_on
 #    command: # 覆盖容器启动后默认执行的命令
 #      - "main.go"
     depends_on:
       - mysql-dev
+
+# 声明网桥
+networks:
+  default:
+    driver: bridge
+
+# 用到别名的方式映射数据卷需要现在这里声明，冒号后面什么都不需要写
+volumes:
+  mysql_dev:
+    name: mysql_dev
