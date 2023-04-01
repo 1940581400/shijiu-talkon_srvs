@@ -1,11 +1,10 @@
 version: "3.8"
 
-
-
 services: # 一组服务
-  mysql-dev: # 容器名
+  talk-mysql: # 容器名
     container_name: talk-mysql
     image: talk-mysql:1.0
+    hostname: talk-mysql
     build:
       context: . # 指定Dockerfile所在的上下文路径
       dockerfile: Dockerfile_mysql # Dockerfile文件名
@@ -17,7 +16,7 @@ services: # 一组服务
 #      - ./aa.env
     volumes:  # 映射数据卷 同 docker -v
       # - "/media/docker/mysql_dev:/var/lib/mysql"  绝对路径指定，宿主机的文件路径须存在，不能自动创建
-      - "mysql_dev:/var/lib/mysql"  # 别名的方式指定，须声明数据卷别名
+      - "talk-mysql:/var/lib/mysql"  # 别名的方式指定，须声明数据卷别名
 #    networks: # 指定网络 同 docker run --network
 #      - talk_on
 
@@ -34,12 +33,14 @@ services: # 一组服务
       dockerfile: Dockerfile_usersrv # Dockerfile文件名
     ports:
       - "8088:8088"
+    command:
+      - ./wait-for-it.sh mysql-dev:3306 -t 0 -- /usersrv
 #    networks:
 #      - talk_on
 #    command: # 覆盖容器启动后默认执行的命令
 #      - "main.go"
     depends_on:
-      - mysql-dev
+      - talk-mysql
 
 # 声明网桥
 networks:
@@ -48,5 +49,5 @@ networks:
 
 # 用到别名的方式映射数据卷需要现在这里声明，冒号后面什么都不需要写
 volumes:
-  mysql_dev:
-    name: mysql_dev
+  talk-mysql:
+    name: talk-mysql

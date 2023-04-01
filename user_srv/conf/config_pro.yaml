@@ -5,7 +5,7 @@ server:
   port: "8088"
 
 mysql:
-  host: "usersrv-mysql"
+  host: "talk-mysql"
   port: "3306"
   username: "shijiu"
   password: "Qq1633841065"
