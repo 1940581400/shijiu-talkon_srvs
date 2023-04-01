@@ -5,6 +5,7 @@ services: # 一组服务
     container_name: talk-mysql
     image: talk-mysql:1.0
     hostname: talk-mysql
+    restart: always
     expose:
       - 3306
     build:
