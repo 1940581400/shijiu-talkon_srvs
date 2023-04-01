@@ -5,6 +5,8 @@ services: # 一组服务
     container_name: talk-mysql
     image: talk-mysql:1.0
     hostname: talk-mysql
+    expose:
+      - 3306
     build:
       context: . # 指定Dockerfile所在的上下文路径
       dockerfile: Dockerfile_mysql # Dockerfile文件名
@@ -33,8 +35,7 @@ services: # 一组服务
       dockerfile: Dockerfile_usersrv # Dockerfile文件名
     ports:
       - "8088:8088"
-    command:
-      - ./wait-for-it.sh mysql-dev:3306 -t 0 -- /usersrv
+#    command: ["/wait-for-it.sh","talk-mysql:3306","-t","15","--","/usersrv"]
 #    networks:
 #      - talk_on
 #    command: # 覆盖容器启动后默认执行的命令
