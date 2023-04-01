@@ -6,9 +6,10 @@ ENV CGO_ENABLED=0
 ENV GOOS=linux
 ENV GOARCH=amd64
 
-
+RUN go env
 COPY . /user_srv
 WORKDIR /user_srv
+RUN go mod download
 RUN go build -o usersrv .
 
 FROM scratch AS deployer
