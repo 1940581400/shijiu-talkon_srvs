@@ -16,7 +16,7 @@ func GetEnvInfo(key string) string {
 
 func InitConfig() {
 	info := GetEnvInfo("TALKON_DEV")
-	configName := "user_srv/config.yaml"
+	configName := "./conf/config.yaml"
 	if flag, _ := strconv.ParseBool(info); flag {
 		//configName = "user_srv/config_dev.yaml"
 		configName = "./conf/config_dev.yaml"
