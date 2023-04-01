@@ -17,7 +17,7 @@ import (
 func InitDB() {
 	zap.S().Infof("[数据库配置] 初始化")
 	config := global.ServerConfig.MySQLInfo
-	zap.S().Infof("[数据库配置] 初始化 :%s", global.ServerConfig.MySQLInfo)
+	zap.S().Infof("[数据库配置] 初始化 host:%s port:%s", global.ServerConfig.MySQLInfo.Host, global.ServerConfig.MySQLInfo.Port)
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 		config.Username, config.Password, config.Host, config.Port, config.Schema)
 	newLogger := logger.New(
