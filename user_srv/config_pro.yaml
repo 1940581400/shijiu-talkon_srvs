@@ -6,7 +6,7 @@ server:
 
 mysql:
   host: "127.0.0.1"
-  port: "8888"
+  port: "50010"
   username: "shijiu"
   password: "Qq1633841065"
   schema: "talkon_user_srv"

@@ -1,0 +1,27 @@
+name: "user_srv"
+
+server:
+  host: "127.0.0.1"
+  port: "8088"
+
+mysql:
+  host: "127.0.0.1"
+  port: "8888"
+  username: "shijiu"
+  password: "Qq1633841065"
+  schema: "talkon_user_srv"
+
+logger:
+  level: "info"
+  development: "true"
+  Encoding: "console"
+  EncoderConfig: "pro"
+  OutputPaths: "stderr"
+
+jwt:
+  key: "talkOn_jwt_by_shijiu_token_2023"
+  expires: 168
+  issuer: "shijiu-talkon"
+  subject: "talkon-default"
+  audience: "shijiu-talkOn.com"
+  platform : "talkon-user-srv"
