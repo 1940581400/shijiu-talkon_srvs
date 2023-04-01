@@ -11,7 +11,7 @@ networks:
 services: # 一组服务
   mysql-dev: # 容器名
     build:
-      context: conf # 指定Dockerfile所在的上下文路径
+      context: . # 指定Dockerfile所在的上下文路径
       dockerfile: Dockerfile_mysql # Dockerfile文件名
     ports: # 端口映射（可写多个），同 docker run -p
       - "50010:3306"
@@ -32,7 +32,7 @@ services: # 一组服务
 
   talk-user-srv:
     build: # 指定需要构建的Dockerfile文件
-      context: conf # 指定Dockerfile所在的上下文路径
+      context: . # 指定Dockerfile所在的上下文路径
       dockerfile: Dockerfile_usersrv # Dockerfile文件名
     ports:
       - "8088:8088"
