@@ -7,8 +7,8 @@ ENV GOOS=linux
 ENV GOARCH=amd64
 
 
-COPY . .
-WORKDIR ./user_srv
+COPY . /
+WORKDIR /user_srv
 RUN go build -o usersrv .
 
 FROM scratch AS deployer
