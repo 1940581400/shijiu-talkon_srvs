@@ -18,4 +18,4 @@ COPY --from=budilder /user_srv/conf /conf
 COPY ./wait-for-it.sh /wait-for-it.sh
 # 声明当前容器中服务的端口
 EXPOSE 8088
-CMD ["/wait-for-it.sh","talk-mysql:3306","-t","15","--","/usersrv"]
+CMD /usersrv
