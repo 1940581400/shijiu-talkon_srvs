@@ -4,7 +4,8 @@ version: "3.8"
 
 services: # 一组服务
   mysql-dev: # 容器名
-    container_name: usersrv-mysql
+    container_name: talk-mysql
+    image: talk-mysql:1.0
     build:
       context: . # 指定Dockerfile所在的上下文路径
       dockerfile: Dockerfile_mysql # Dockerfile文件名
@@ -27,6 +28,7 @@ services: # 一组服务
 
   talk-user-srv:
     container_name: usersrv
+    image: usersrv:1.0
     build: # 指定需要构建的Dockerfile文件
       context: . # 指定Dockerfile所在的上下文路径
       dockerfile: Dockerfile_usersrv # Dockerfile文件名
