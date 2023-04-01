@@ -10,6 +10,7 @@ RUN go env
 COPY . /user_srv
 WORKDIR /user_srv
 COPY ./wait-for-it.sh ./wait-for-it.sh
+RUN chmod +x ./wait-for-it.sh
 RUN go mod download
 RUN go build -o usersrv .
 #CMD ["./usersrv"]
