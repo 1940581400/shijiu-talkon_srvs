@@ -1,0 +1,45 @@
+version: "3.8"
+
+services:
+  shijiu-prometheus:
+    container_name: shijiu-prometheus
+    image: bitnami/prometheus:2.43.0
+    ports:
+      - "9090:9090"
+    hostname: shijiu-prometheus
+    environment:
+      - TZ=Asia/Shanghai
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--storage.tsdb.retention.time=7d'
+    volumes:
+      - prometheus:/opt/bitnami/prometheus/data
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - talkon-usersrv
+
+  shijiu-grafana:
+    container_name: shijiu-grafana
+    image: grafana/grafana:8.5.22
+    ports:
+      - "3000:3000"
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - grafana:/var/lib/grafana
+    networks:
+      - talkon-usersrv
+
+
+volumes:
+  prometheus:
+    name: prometheus
+  grafana:
+    name: grafana
+networks:
+  talkon-usersrv:
+    name: talkon-usersrv
+
