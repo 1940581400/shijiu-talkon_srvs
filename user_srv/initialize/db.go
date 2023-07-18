@@ -2,9 +2,11 @@ package initialize
 
 import (
 	"fmt"
+	"github.com/shijiu-xf/go-base/comm/zapsj"
 	"go.uber.org/zap"
 	"log"
 	"os"
+	"talkon_srvs/user_srv/config"
 	"talkon_srvs/user_srv/global"
 	"time"
 
@@ -15,11 +17,15 @@ import (
 )
 
 func InitDB() {
-	zap.S().Infof("[数据库配置] 初始化")
-	config := global.ServerConfig.MySQLInfo
-	zap.S().Infof("[数据库配置] 连接 地址:%s 端口:%s", global.ServerConfig.MySQLInfo.Host, global.ServerConfig.MySQLInfo.Port)
+	zapsj.ZapS().Infof("[数据库配置] 初始化")
+	var mysqlConfig = &config.MySQLConfig{}
+	err := mysqlConfig.GetMysqlConfig(*global.ConfigSource, "mysql")
+	if err != nil {
+		zap.L().Panic("get config field :", zap.Error(err))
+	}
+	zapsj.ZapS().Infof("[数据库配置] 连接 地址:%s 端口:%s", mysqlConfig.Host, mysqlConfig.Port)
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		config.Username, config.Password, config.Host, config.Port, config.Schema)
+		mysqlConfig.Username, mysqlConfig.Password, mysqlConfig.Host, mysqlConfig.Port, mysqlConfig.Schema)
 	newLogger := logger.New(
 		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
 		logger.Config{
@@ -40,6 +46,6 @@ func InitDB() {
 		if err != nil {
 			panic(err)
 		}
-		zap.S().Infof("[数据库配置] 初始化完成")
+		zapsj.ZapS().Infof("[数据库配置] 初始化完成")
 	}()
 }

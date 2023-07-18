@@ -2,7 +2,7 @@ package initialize
 
 import (
 	"fmt"
-	"go.uber.org/zap"
+	"github.com/shijiu-xf/go-base/comm/zapsj"
 	"net"
 	"talkon_srvs/user_srv/global"
 
@@ -16,7 +16,7 @@ func InitServer() {
 	config := global.ServerConfig.UserSrvInfo
 	server := grpc.NewServer()
 	proto.RegisterUserServer(server, &handler.UserService{})
-	zap.S().Infof("[用户服务] 启动：地址:%s 端口:%s", config.Host, config.Port)
+	zapsj.ZapS().Infof("[用户服务] 启动：地址:%s 端口:%s", config.Host, config.Port)
 	listen, err := net.Listen("tcp", fmt.Sprintf("%s:%s", config.Host, config.Port))
 	if err != nil {
 		panic("failed to listen " + err.Error())

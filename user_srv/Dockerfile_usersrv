@@ -8,12 +8,15 @@ ENV GOARCH=amd64
 
 RUN go env
 COPY . /user_srv
+RUN mkdir "user_srv_log"
 WORKDIR /user_srv
 COPY ./wait-for-it.sh ./wait-for-it.sh
 RUN chmod +x ./wait-for-it.sh
+RUN go mod tidy
 RUN go mod download
 RUN go build -o usersrv .
 #CMD ["./usersrv"]
+CMD ./filebeat -e -c filebeat.yml &
 CMD ./usersrv
 
 #FROM scratch AS deployer

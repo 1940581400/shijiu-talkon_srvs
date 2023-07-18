@@ -1,10 +1,12 @@
 package initialize
 
 import (
+	"go.uber.org/zap"
 	"log"
 	"strconv"
 	"talkon_srvs/user_srv/config"
 	"talkon_srvs/user_srv/global"
+	"talkon_srvs/user_srv/utils"
 
 	"github.com/spf13/viper"
 )
@@ -36,4 +38,12 @@ func InitConfig() {
 	}
 	global.ServerConfig = &serverConfig
 	logger.Printf("[配置文件] 读取完成")
+	// 初始化consul配置中心
+	addr := global.ServerConfig.ConsulConfig.Host + ":" + global.ServerConfig.ConsulConfig.Port
+	global.ServerConfig.ConsulConfig.ConsulAddr = addr
+	consulConfig, err := utils.GetConsulConfig(addr, global.ServerConfig.ConsulConfig.ConfigurationCenter.Prefix)
+	if err != nil {
+		logger.Panic("[consul] 配置中心获取失败", zap.Error(err))
+	}
+	global.ConfigSource = &consulConfig
 }

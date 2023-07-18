@@ -1,10 +1,10 @@
 version: "3.8"
 
 services: # 一组服务
-  talk-mysql: # 容器名
-    container_name: talk-mysql
-    image: talk-mysql:1.0
-    hostname: talk-mysql
+  talkon-mysql: # 容器名
+    container_name: talkon-mysql
+    image: talkon-mysql:1.0
+    hostname: talkon-mysql
     restart: always
     expose:
       - 3306
@@ -20,37 +20,119 @@ services: # 一组服务
     volumes:  # 映射数据卷 同 docker -v
       # - "/media/docker/mysql_dev:/var/lib/mysql"  绝对路径指定，宿主机的文件路径须存在，不能自动创建
       - "talk-mysql:/var/lib/mysql"  # 别名的方式指定，须声明数据卷别名
-#    networks: # 指定网络 同 docker run --network
-#      - talk_on
+    networks:
+      - talkon-usersrv
 
 #  redis-dev:
 #    image: redis:7.0.8
 #    ports:
 #      - "50020:6379"
 
-  talk-user-srv:
-    container_name: usersrv
+  talkon-user-srv:
+    container_name: talkon-user-srv
     image: usersrv:1.0
+    hostname: talkon-user-srv
     build: # 指定需要构建的Dockerfile文件
       context: . # 指定Dockerfile所在的上下文路径
       dockerfile: Dockerfile_usersrv # Dockerfile文件名
     ports:
       - "8088:8088"
-    command: ./wait-for-it.sh talk-mysql:3306 -t 600 -- ./usersrv
+    command: bash -c "
+                    ./filebeat -e -c ./filebeat.yml 2>&1 >beat.log & ./wait-for-it.sh talkon-mysql:3306 talkon-user-srv-jaeger:16686 talkon-consul-4:8500 -t 600 -- ./usersrv
+      "
+#    command: ./wait-for-it.sh talkon-mysql:3306 talkon-user-srv-jaeger:16686 talkon-consul-4:8500 -t 600 -- ./usersrv
 #    command: ["/wait-for-it.sh","talk-mysql:3306","-t","15","--","/usersrv"]
 #    networks:
 #      - talk_on
 #    command: # 覆盖容器启动后默认执行的命令
 #      - "main.go"
     depends_on:
-      - talk-mysql
+      - talkon-mysql
+      - talkon-consul-4
+    networks:
+      - talkon-usersrv
+    volumes:
+      - talkon-user_srv_log:/user_srv_log
+      - talkon-user-srv-filebeat:/user_srv/data/registry
+
+# 添加consul 注册中心集群
+  talkon-consul-1:
+    image: consul:1.15.1
+    container_name: talkon-consul-1
+#    hostname: talkon-consul-1
+    command: agent -server -bootstrap-expect=3 -node=talkon-consul-1 -bind=0.0.0.0 -client=0.0.0.0 -datacenter=dc1
+    networks:
+      - talkon-usersrv
+    volumes:
+      - talkon-usersrv-consul-1:/consul/data
+  talkon-consul-2:
+    image: consul:1.15.1
+    container_name: talkon-consul-2
+#    hostname: talkon-consul-2
+    command: agent -server -retry-join=talkon-consul-1 -bootstrap-expect=3 -node=talkon-consul-2 -bind=0.0.0.0 -client=0.0.0.0 -datacenter=dc1
+    networks:
+      - talkon-usersrv
+    depends_on:
+      - talkon-consul-1
+    volumes:
+      - talkon-usersrv-consul-2:/consul/data
+  talkon-consul-3:
+    image: consul:1.15.1
+    container_name: talkon-consul-3
+    hostname: talkon-consul-3
+    command: agent -server -retry-join=talkon-consul-1 -bootstrap-expect=3 -node=talkon-consul-3 -bind=0.0.0.0 -client=0.0.0.0 -datacenter=dc1
+    networks:
+      - talkon-usersrv
+    depends_on:
+      - talkon-consul-1
+    volumes:
+      - talkon-usersrv-consul-3:/consul/data
+  talkon-consul-4:
+    image: consul:1.15.1
+    container_name: talkon-consul-4
+#    hostname: talkon-consul-4
+    command: agent -server -retry-join=talkon-consul-1 -bootstrap-expect=3 -node=talkon-consul-4 -bind=0.0.0.0 -client=0.0.0.0 -datacenter=dc1 -ui
+    networks:
+      - talkon-usersrv
+    ports:
+      - "8500:8500"
+    volumes:
+      - talkon-usersrv-consul-4:/consul/data
+    depends_on:
+      - talkon-consul-2
+      - talkon-consul-3
+
+#  jaeger 链路追踪
+  talkon-user-srv-jaeger:
+    image: jaegertracing/all-in-one:1
+    container_name: talkon-user-srv-jaeger
+    ports:
+      - "6831:6831/udp"
+      - "16686:16686"
+    networks:
+      - talkon-usersrv
+
+
 
 # 声明网桥
 networks:
-  default:
+  talkon-usersrv:
+    name: talkon-usersrv
     driver: bridge
 
 # 用到别名的方式映射数据卷需要现在这里声明，冒号后面什么都不需要写
 volumes:
   talk-mysql:
-    name: talk-mysql
+    name: talkon-mysql
+  talkon-usersrv-consul-1:
+    name: talkon-usersrv-consul-1
+  talkon-usersrv-consul-2:
+    name: talkon-usersrv-consul-2
+  talkon-usersrv-consul-3:
+    name: talkon-usersrv-consul-3
+  talkon-usersrv-consul-4:
+    name: talkon-usersrv-consul-4
+  talkon-user_srv_log:
+    name: talkon-user_srv_log
+  talkon-user-srv-filebeat:
+    name: talkon-user-srv-filebeat

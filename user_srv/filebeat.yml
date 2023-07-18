@@ -1,0 +1,8 @@
+filebeat.inputs:
+  - type: log
+    enabled: true
+    paths:
+      - /user_srv_log/*.log
+
+output.logstash:
+  hosts: ["talkon-logstash:5044"]

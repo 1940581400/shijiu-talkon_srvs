@@ -95,4 +95,5 @@ func InitLogger() {
 	}
 	zap.ReplaceGlobals(logger)
 	lg.Printf("[日志配置] 初始化完成")
+	zap.L().Sync()
 }

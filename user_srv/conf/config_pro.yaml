@@ -4,8 +4,15 @@ server:
   host: "127.0.0.1"
   port: "8088"
 
+consul:
+  host: "talkon-consul-1"
+  port: "8500"
+  config-center:
+    prefix: "talkon/usersrv/config/pro"
+
+
 mysql:
-  host: "talk-mysql"
+  host: "talkon-mysql"
   port: "3306"
   username: "root"
   password: "Qq1633841065"
